@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from .models import Hero
+from .models import Snippet, LANGUAGE_CHOICES, STYLE_CHOICES
 
 
-class HeroSerializer(serializers.HyperlinkedModelSerializer):
+class SnippetSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Hero
-        fields = ('name', 'alias')
+        model = Snippet
+        fields = ['id', 'title', 'code', 'linenos', 'language', 'style']
