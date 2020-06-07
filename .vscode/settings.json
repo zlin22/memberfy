@@ -1,5 +1,5 @@
 {
-  "python.pythonPath": "/Users/zhilin/Documents/GitHub/memberfy/venv/bin/python3",
+  "python.pythonPath": "venv\\Scripts\\python.exe",
   "python.linting.flake8Enabled": true,
   "python.linting.enabled": true,
   "python.linting.pylintEnabled": false
