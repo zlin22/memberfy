@@ -1,6 +1,13 @@
 from rest_framework import serializers
-from .models import Snippet, LANGUAGE_CHOICES, STYLE_CHOICES
+from .models import MembershipConfig, Membership, AuxMembership, Snippet
 from django.contrib.auth.models import User
+
+
+class MembershipConfigSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = MembershipConfig
+        fields = ['org_id', 'price_plan_id', 'days_valid', 'price', 'title', 'description',
+                  'banner_message', 'is_displayed_on_site', 'is_subscription', 'display_order']
 
 
 class SnippetSerializer(serializers.HyperlinkedModelSerializer):

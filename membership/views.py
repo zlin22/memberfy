@@ -1,6 +1,8 @@
 from .models import Snippet
+from .models import MembershipConfig, Membership, AuxMembership
 from .serializers import SnippetSerializer
-from rest_framework import generics
+from .serializers import MembershipConfigSerializer
+from rest_framework import status, generics
 from django.contrib.auth.models import User
 from .serializers import UserSerializer
 from rest_framework import permissions
@@ -11,6 +13,47 @@ from rest_framework import renderers
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
+
+@api_view(['GET', 'POST'])
+def membership_config_list(request, format=None):
+    # list all membership configs, or create new membership config
+    if request.method == 'GET':
+        membership_configs = MembershipConfig.objects.all()
+        serializer = MembershipConfigSerializer(membership_configs, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        serializer = MembershipConfigSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def membership_config_detail(request, pk, format=None):
+    # retrieve, update, or delete a membership config
+    try:
+        membership_config = MembershipConfig.objects.get(pk=pk)
+    except MembershipConfig.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = MembershipConfigSerializer(membership_config)
+        return Response(serializer.data)
+
+    elif request.method == 'PUT':
+        serializer = MembershipConfigSerializer(
+            membership_config, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        membership_config.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class SnippetHighlight(generics.GenericAPIView):
