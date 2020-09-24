@@ -14,7 +14,7 @@ class MembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Membership
         fields = ['id', 'membership_config_id', 'user_id',
-                  'initiation_date', 'expiration_date', 'payment_status']
+                  'initiation_date', 'expiration_date', 'payment_status', 'is_active']
 
 
 class AuxMembershipSerializer(serializers.ModelSerializer):

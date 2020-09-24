@@ -3,7 +3,7 @@ from .serializers import MembershipConfigSerializer, MembershipSerializer
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, generics
+from rest_framework import status
 
 
 class MembershipConfigList(APIView):
@@ -102,3 +102,21 @@ class MembershipDetail(APIView):
         membership = self.get_object(pk)
         membership.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class MembershipIsActive(APIView):
+    """
+    retrieve status of "is_active" of a membership instance
+    """
+
+    def get_object(self, pk):
+        try:
+            return Membership.objects.get(pk=pk)
+        except Membership.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        membership = self.get_object(pk)
+
+        serializer = MembershipSerializer(membership)
+        return Response(serializer.data)
