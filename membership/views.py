@@ -1,122 +1,63 @@
-from .models import MembershipConfig, Membership, AuxMembership
+from .models import MembershipConfig, Membership  # , AuxMembership
 from .serializers import MembershipConfigSerializer, MembershipSerializer
-from django.http import Http404
-from rest_framework.views import APIView
+# from rest_framework.views import APIView
+# from rest_framework import status, generics
+
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import viewsets
+from rest_framework.decorators import action
 
 
-class MembershipConfigList(APIView):
+class MembershipConfigViewSet(viewsets.ModelViewSet):
     """
-    List all membership configs or create new membership config
+    This viewset automatically provides `list`, `create`, `retrieve`,
+    `update` and `destroy` actions.
+
+    Additionally we also provide an extra `is_active` action.
     """
+    serializer_class = MembershipConfigSerializer
 
-    def get(self, request, format=None):
-        membership_configs = MembershipConfig.objects.all()
-        serializer = MembershipConfigSerializer(membership_configs, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        """
+        This view should return a list of all the memberships configs for
+        the org as determined by the org_id portion of the URL.
+        """
+        org_id = self.kwargs['org_id']
+        return MembershipConfig.objects.filter(org_id=org_id)
 
-    def post(self, request, format=None):
-        serializer = MembershipConfigSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # if table has an owner column, can update owner with user who created item
+    # def perform_create(self, serializer):
+    #     serializer.save(owner=self.request.user)
 
 
-class MembershipConfigDetail(APIView):
+class MembershipViewSet(viewsets.ModelViewSet):
     """
-    retrieve, update or delete a membership config instance
+    This viewset automatically provides `list`, `create`, `retrieve`,
+    `update` and `destroy` actions.
     """
+    serializer_class = MembershipSerializer
 
-    def get_object(self, pk):
-        try:
-            return MembershipConfig.objects.get(pk=pk)
-        except MembershipConfig.DoesNotExist:
-            raise Http404
+    def get_queryset(self):
+        """
+        This view should return a list of all the memberships configs for
+        the org as determined by the org_id portion of the URL.
+        """
+        org_id = self.kwargs['org_id']
+        return Membership.objects.filter(membership_config__org_id=org_id)
 
-    def get(self, request, pk, format=None):
-        membership_config = self.get_object(pk)
-        serializer = MembershipConfigSerializer(membership_config)
-        return Response(serializer.data)
+    @action(detail=True)
+    def is_active(self, request, *args, **kwargs):
+        membership = self.get_object()
+        return Response(membership.is_active)
 
-    def put(self, request, pk, format=None):
-        membership_config = self.get_object(pk)
-        serializer = MembershipConfigSerializer(
-            membership_config, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     def get(self, request, format=None):
+#         memberships = Membership.objects.all()
+#         serializer = MembershipSerializer(memberships, many=True)
+#         return Response(serializer.data)
 
-    def delete(self, request, pk, format=None):
-        membership_config = self.get_object(pk)
-        membership_config.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class MembershipList(APIView):
-    """
-    List all memberships or create new memberships
-    """
-
-    def get(self, request, format=None):
-        memberships = Membership.objects.all()
-        serializer = MembershipSerializer(memberships, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, format=None):
-        serializer = MembershipSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class MembershipDetail(APIView):
-    """
-    retrieve, update or delete a membership instance
-    """
-
-    def get_object(self, pk):
-        try:
-            return Membership.objects.get(pk=pk)
-        except Membership.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        membership = self.get_object(pk)
-        serializer = MembershipSerializer(membership)
-        return Response(serializer.data)
-
-    def put(self, request, pk, format=None):
-        membership = self.get_object(pk)
-        serializer = MembershipSerializer(
-            membership, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk, format=None):
-        membership = self.get_object(pk)
-        membership.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class MembershipIsActive(APIView):
-    """
-    retrieve status of "is_active" of a membership instance
-    """
-
-    def get_object(self, pk):
-        try:
-            return Membership.objects.get(pk=pk)
-        except Membership.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        membership = self.get_object(pk)
-
-        serializer = MembershipSerializer(membership)
-        return Response(serializer.data)
+#     def post(self, request, format=None):
+#         serializer = MembershipSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
