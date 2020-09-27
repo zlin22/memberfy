@@ -22,4 +22,3 @@ class AuxMembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = AuxMembership
         fields = ['id', 'membership_id', 'user_id']
-#         fields = '__all__'
